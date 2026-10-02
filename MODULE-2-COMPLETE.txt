@@ -1,0 +1,31 @@
+SafeRoad — Module 2 Complete
+
+Module 2: Route & Navigation
+
+Included:
+- Current GPS location via browser geolocation
+- Interactive Leaflet/OpenStreetMap map
+- Working + / - / current-location controls
+- Destination search in the header
+- Live search suggestions (Nominatim with Photon fallback)
+- India-focused search and current-location bias when GPS is available
+- Destination marker
+- Driving route from current GPS position to destination (OSRM)
+- Distance and ETA route summary
+- Clear route button
+- No fake GPS position is shown
+
+Files updated:
+- frontend/index.html
+- frontend/css/style.css
+- frontend/js/live-map.js
+
+Run:
+1. Open the project through VS Code Live Server (localhost).
+2. Allow Location when Chrome asks.
+3. Type a destination in the top search box.
+4. Select a suggestion or press Search.
+5. The route, distance and ETA appear on the map.
+
+Note:
+The public OpenStreetMap/Nominatim/Photon/OSRM services are suitable for development/demo use, but production deployment should use a properly provisioned geocoding/routing provider with appropriate usage limits.

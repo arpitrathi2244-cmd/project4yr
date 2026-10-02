@@ -1,0 +1,14 @@
+.env
+*.env
+application-local.properties
+target/
+__pycache__/
+*.pyc
+node_modules/
+.vscode/
+.idea/
+*.log
+
+backend/src/main/resources/application.properties
+
+data/india-260930.osm.pbf

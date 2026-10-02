@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Safety & Accident Prevention System</title>
+
+    <!-- Shared project stylesheet. -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Leaflet map library -->
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <style>
+
+        /* =========================================================
+           REAL OSM SAFETY ZONES
+           ========================================================= */
+        .osm-zone-toolbar {
+            position:absolute; z-index:1100; top:14px; left:14px;
+            display:flex; gap:7px; flex-wrap:wrap; max-width:calc(100% - 28px);
+        }
+        .osm-zone-btn {
+            border:1px solid rgba(255,255,255,.18); background:rgba(5,24,43,.94);
+            color:#fff; border-radius:9px; padding:8px 11px; cursor:pointer;
+            font-weight:700; font-size:12px; backdrop-filter:blur(8px);
+        }
+        .osm-zone-btn.active { background:#1877ff; border-color:#4b92ff; }
+.osm-clear-btn {
+            border:1px solid rgba(255,255,255,.18); background:rgba(160,25,50,.92);
+            color:#fff; border-radius:9px; padding:8px 11px; cursor:pointer;
+            font-weight:700; font-size:12px;
+        }
+        .osm-clear-btn:hover { background:#c5304d; }
+        .osm-zone-status {
+            position:absolute; z-index:1100; right:14px; bottom:14px;
+            max-width:340px; padding:8px 11px; border-radius:9px;
+            background:rgba(5,24,43,.94); color:#dcecff;
+            border:1px solid rgba(255,255,255,.14); font-size:11px;
+            pointer-events:none;
+        }
+        .osm-school-marker {
+            width:26px; height:26px; border-radius:50%; display:flex;
+            align-items:center; justify-content:center; background:#1877ff;
+            border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.35);
+            color:#fff; font-size:14px;
+        }
+        .osm-hill-marker {
+            width:24px; height:24px; border-radius:50%; display:flex;
+            align-items:center; justify-content:center; background:#d97706;
+            border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.35);
+            color:#fff; font-size:13px;
+        }
+        .osm-wildlife-marker {
+            width:26px; height:26px; border-radius:50%; display:flex;
+            align-items:center; justify-content:center; background:#8b5cf6;
+            border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.35);
+            color:#fff; font-size:14px;
+        }
+        .osm-zone-popup strong { display:block; margin-bottom:3px; }
+        .osm-zone-popup small { opacity:.75; }
+        .osm-zone-popup a { color:#62b0ff; }
+
+        /* Live map used inside the dashboard */
+        .live-map-shell {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            gap: 16px;
+            min-height: 540px;
+            margin-top: 18px;
+        }
+
+        .live-map-card {
+            position: relative;
+            min-height: 540px;
+            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: #0b2036;
+        }
+
+        #roadSafetyMap {
+            width: 100%;
+            height: 540px;
+            min-height: 540px;
+            z-index: 1;
+        }
+
+        .map-top-controls {
+            position: absolute;
+            z-index: 1000;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            pointer-events: none;
+        }
+
+        .map-top-controls > * { pointer-events: auto; }
+
+        .map-filter, .map-action-btn {
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(5,24,43,.92);
+            color: #fff;
+            border-radius: 10px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+
+        .map-filter.active {
+            background: #1877ff;
+            border-color: #4b92ff;
+        }
+
+        .map-search {
+            display: flex;
+            gap: 7px;
+            margin-left: auto;
+        }
+
+        .map-search input {
+            width: 230px;
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #fff;
+            background: rgba(5,24,43,.94);
+            outline: none;
+        }
+
+        .map-controls {
+            position: absolute;
+            z-index: 1000;
+            right: 14px;
+            top: 72px;
+            display: grid;
+            gap: 7px;
+        }
+
+        .map-controls button {
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            background: rgba(5,24,43,.94);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .map-legend {
+            position: absolute;
+            z-index: 1000;
+            left: 14px;
+            bottom: 14px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: #fff;
+            background: rgba(5,24,43,.92);
+            border: 1px solid rgba(255,255,255,.14);
+            font-size: 12px;
+        }
+
+        .map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .legend-low { background:#18d98b; }
+        .legend-medium { background:#ffb020; }
+        .legend-high { background:#ff405d; }
+        .legend-wildlife { background:#9b4dff; }
+
+        .map-side-panel {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: rgba(7,28,48,.92);
+            color: #fff;
+        }
+
+        .map-side-panel h3 { margin: 0 0 5px; }
+        .map-side-panel p { margin: 0 0 16px; opacity: .72; font-size: 13px; }
+        .location-box {
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.05);
+            margin-bottom: 14px;
+        }
+        .location-box strong { display:block; margin-bottom: 4px; }
+        .location-box small { opacity:.7; }
+        .hazard-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,.09);
+        }
+        .hazard-item:last-child { border-bottom:0; }
+        .hazard-item strong { display:block; }
+        .hazard-item span { font-size:12px; opacity:.7; }
+
+        /* Dashboard real live map - replaces the decorative map. */
+        .dashboard-map-stage {
+            position: relative;
+            width: 100%;
+            height: 470px;
+            min-height: 470px;
+            overflow: hidden;
+            border-radius: 14px;
+            background: #123b31;
+        }
+
+        #safeRoadLiveMap {
+            width: 100%;
+            height: 100%;
+            min-height: 470px;
+            z-index: 1;
+        }
+
+        .dashboard-map-filters {
+            position: absolute;
+            z-index: 1000;
+            top: 14px;
+            left: 14px;
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-map-filter {
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(5,24,43,.92);
+            color: #fff;
+            border-radius: 9px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+
+        .dashboard-map-filter.active {
+            background: #1877ff;
+            border-color: #4b92ff;
+        }
+
+        .dashboard-map-controls {
+            position: absolute;
+            z-index: 1000;
+            right: 14px;
+            top: 72px;
+            display: grid;
+            gap: 7px;
+        }
+
+        .dashboard-map-controls button {
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            background: rgba(5,24,43,.94);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .dashboard-map-legend {
+            position: absolute;
+            z-index: 1000;
+            left: 14px;
+            bottom: 14px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: #fff;
+            background: rgba(5,24,43,.92);
+            border: 1px solid rgba(255,255,255,.14);
+            font-size: 12px;
+        }
+
+        .dashboard-map-legend span { display:inline-flex; align-items:center; gap:5px; }
+
+        @media (max-width: 900px) {
+            .dashboard-map-stage, #safeRoadLiveMap { height: 420px; min-height: 420px; }
+            .dashboard-map-filter { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media (max-width: 900px) {
+            .live-map-shell { grid-template-columns: 1fr; }
+            .map-side-panel { min-height: auto; }
+            .map-search { width:100%; margin-left:0; }
+            .map-search input { width:100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         FILE: index.html
+         PROJECT: AI Road Safety & Accident Prevention System
+         PURPOSE: Main dashboard and frontend navigation shell.
+         ===================================================== -->
+
+    <div class="app-shell">
+
+        <!-- =================================================
+             01. TOP HEADER
+             Branding, search, notifications, theme and auth.
+             ================================================= -->
+        <header class="topbar">
+
+            <div class="brand">
+                <div class="brand-mark">🛡</div>
+
+                <div>
+                    <h1>Road Safety & Accident Prevention System</h1>
+                    <p>Safer Roads, Brighter Tomorrows</p>
+                </div>
+            </div>
+
+            <!-- Single map search: this is the main destination search. -->
+            <div class="top-search map-header-search">
+                <span class="search-icon" aria-hidden="true">⌕</span>
+                <input
+                    id="mapSearchInput"
+                    type="text"
+                    placeholder="Search place or destination..."
+                    autocomplete="off"
+                    aria-label="Search place or destination"
+                >
+                <button id="mapSearchBtn" type="button">Search</button>
+                <kbd>Ctrl K</kbd>
+                <div id="mapSearchResults" class="map-search-results" aria-live="polite"></div>
+            </div>
+
+            <div class="top-actions">
+
+    <button
+        class="icon-btn"
+        title="Notifications"
+        id="notificationBtn"
+    >
+        ♧
+        <span class="badge">3</span>
+    </button>
+
+    <button
+        class="theme-toggle"
+        id="themeToggle"
+    >
+        ☼ <span></span> ☾
+    </button>
+
+    <!-- Logged-in user information -->
+   <!-- =================================================
+     AUTHENTICATION UI
+     ================================================= -->
+
+<div id="authActions" class="auth-actions">
+
+    <!-- Sign In -->
+    <a
+        class="auth-btn outline"
+        href="pages/sign-in.html"
+    >
+        Sign In
+    </a>
+
+    <!-- Sign Up -->
+    <a
+        class="auth-btn primary"
+        href="pages/sign-up.html"
+    >
+        Sign Up
+    </a>
+
+</div>
+
+
+<!-- =================================================
+     LOGGED-IN USER UI
+     ================================================= -->
+
+<div
+    id="userProfile"
+    class="user-profile"
+    style="display: none;"
+>
+
+    <!-- User Initial Avatar -->
+    <div
+        id="userAvatar"
+        class="user-avatar"
+        aria-label="User profile"
+    >
+        AG
+    </div>
+
+    <!-- User Name + Email -->
+    <div class="user-details">
+
+        <strong data-user-name>
+            User
+        </strong>
+
+        <small data-user-email>
+            user@example.com
+        </small>
+
+    </div>
+
+    <!-- Profile button -->
+    <button
+        id="profileArrow"
+        class="profile-arrow"
+        type="button"
+        aria-label="Open profile"
+    >
+        ⌄
+    </button>
+
+    <!-- Animated red Logout button -->
+    <button
+        id="logoutBtn"
+        class="logout-btn"
+        type="button"
+    >
+        <span class="logout-icon">↪</span>
+        <span>Logout</span>
+    </button>
+
+</div>
+
+
+</div>
+        </header>
+
+
+        <!-- =================================================
+             02. SIDEBAR NAVIGATION
+             ================================================= -->
+        <aside class="sidebar">
+
+            <nav>
+                <button class="nav-item active" data-section="dashboard">
+                    ⌂
+                    <span>Dashboard</span>
+                </button>
+
+                <button class="nav-item" data-section="profile">
+    👤
+                 <span>My Profile</span>
+                 <b>›</b>
+                </button>
+
+                <button class="nav-item" data-section="live-map">
+                    ⌖
+                    <span>Live Map</span>
+                    <b>›</b>
+                </button>
+
+                <button class="nav-item" data-section="risk">
+                    ⌁
+                    <span>Risk Prediction</span>
+                    <b>›</b>
+                </button>
+
+                <button class="nav-item" data-section="alerts">
+                    ♧
+                    <span>Alerts</span>
+                    <em>2</em>
+                </button>
+
+                <button class="nav-item" data-section="reports">
+                    ▣
+                    <span>Reports</span>
+                    <b>›</b>
+                </button>
+
+                <button class="nav-item" data-section="safe-route">
+                    ⌘
+                    <span>Safe Route</span>
+                    <b>›</b>
+                </button>
+
+                <button class="nav-item" data-section="emergency">
+                    ✚
+                    <span>Emergency</span>
+                    <em class="sos-mini">SOS</em>
+                </button>
+
+                <button class="nav-item" data-section="services">
+                    ▤
+                    <span>Nearby Services</span>
+                    <b>›</b>
+                </button>
+
+                <button class="nav-item" data-section="analytics">
+                    ⌗
+                    <span>Analytics</span>
+                    <b>›</b>
+                </button>
+            </nav>
+
+            <!-- Quick emergency action. -->
+            <div class="sidebar-sos">
+                <div class="sos-title">Emergency SOS</div>
+                <p>Quick help in critical situation</p>
+                <button id="callNow">CALL NOW</button>
+            </div>
+
+            <div class="sidebar-caption">
+                Drive Safe<br>
+                <small>Stay Ahead</small>
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             03. MAIN DASHBOARD CONTENT
+             ================================================= -->
+        <main class="main">
+
+            <!-- =================================================
+     USER PROFILE PANEL
+     ================================================= -->
+<section id="profile" class="page-section module-page">
+
+    <div class="module-hero">
+        <span>ACCOUNT</span>
+        <h2>My Profile</h2>
+        <p>View and manage your Road Safety account information.</p>
+    </div>
+
+    <div class="profile-card">
+
+        <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+
+            <div>
+                <h3 data-user-name>Loading...</h3>
+                <p data-user-email>Loading...</p>
+            </div>
+        </div>
+
+        <form id="profileForm">
+
+            <div class="profile-form-grid">
+
+                <div>
+                    <label for="profileFullName">Full Name</label>
+                    <input
+                        id="profileFullName"
+                        type="text"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="profileAge">Age</label>
+                    <input
+                        id="profileAge"
+                        type="number"
+                        min="1"
+                        max="120"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="profileMobile">Mobile</label>
+                    <input
+                        id="profileMobile"
+                        type="text"
+                        maxlength="10"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="profileEmail">Email</label>
+                    <input
+                        id="profileEmail"
+                        type="email"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <button
+                type="submit"
+                class="primary-large"
+            >
+                Update Profile
+            </button>
+
+        </form>
+
+        <div id="profileMessage" class="message"></div>
+
+    </div>
+
+</section>
+
+
+            <!-- =================================================
+                 04. DASHBOARD HOME
+                 ================================================= -->
+            <section id="dashboard" class="page-section active">
+
+                <!-- Summary cards. -->
+                <div class="summary-grid">
+
+                    <article class="summary-card">
+                        <div class="summary-icon blue">⌖</div>
+                        <div>
+                            <small>Your Location</small>
+                            <strong id="dashboardLocationName">Detecting location...</strong>
+                            <p id="dashboardLocationCoords">Waiting for GPS...</p>
+                        </div>
+                    </article>
+
+                    <article class="summary-card">
+                        <div class="summary-icon red">!</div>
+                        <div>
+                            <small>Current Risk</small>
+                            <strong class="danger-text">HIGH RISK</strong>
+                            <p>Score: <b>82/100</b></p>
+                        </div>
+                    </article>
+
+                    <article class="summary-card">
+                        <div class="summary-icon blue">☁</div>
+                        <div>
+                            <small>Weather</small>
+                            <strong>Light Rain</strong>
+                            <p>18°C • Humidity 87%</p>
+                        </div>
+                    </article>
+
+                    <article class="summary-card">
+                        <div class="summary-icon green">✓</div>
+                        <div>
+                            <small>Drive Safe</small>
+                            <strong>Wear Seatbelt</strong>
+                            <p>Drive within speed limit</p>
+                        </div>
+                    </article>
+
+                </div>
+
+
+                <!-- Map and information panels. -->
+                <div class="content-grid">
+
+                    <div class="left-column">
+
+                        <!-- Risk map. -->
+                        <article class="panel map-panel">
+
+                            <div class="dashboard-map-stage">
+
+                                <div id="safeRoadLiveMap" aria-label="Dashboard live road safety map"></div>
+
+
+                                <div class="osm-zone-toolbar" data-osm-toolbar="dashboard">
+                                    <button type="button" class="osm-zone-btn active" data-zone="schools">🏫 Schools</button>
+                                    <button type="button" class="osm-zone-btn active" data-zone="hills">⛰️ Hills</button>
+                                    <button type="button" class="osm-zone-btn active" data-zone="wildlife">🐘 Wildlife</button>
+                                    <button type="button" class="osm-zone-btn active" data-zone="steepRoads">🛣️ Steep Roads</button>
+                            <button type="button" class="osm-zone-btn" id="dashboardDirectionBtn">🧭 Direction</button>
+                                    <button type="button" class="osm-clear-btn" id="dashboardClearSelectedBtn">✕ Clear</button>
+                                </div>
+                                <div class="osm-zone-status" data-osm-status="dashboard">Saved zones + live OSM: zoom into an area to load live features.</div>
+
+                                <div class="dashboard-map-controls">
+                                    <button id="dashboardZoomInBtn" type="button" title="Zoom in">+</button>
+                                    <button id="dashboardZoomOutBtn" type="button" title="Zoom out">−</button>
+                                    <button id="dashboardLocateMeBtn" type="button" title="My location">◎</button>
+                                </div>
+
+                                <div class="dashboard-map-legend">
+                                    <span>🏫 School</span>
+                                    <span>⛰️ Hill</span>
+                                    <span>🐘 Protected Area</span>
+                                    <span>🛣️ Steep Road</span>
+                                </div>
+
+                            </div>
+                        </article>
+
+
+                        <!-- Quick actions. -->
+                        <div class="action-grid">
+
+                            <article class="action-card red-card">
+                                <div class="action-icon">🚗</div>
+                                <div>
+                                    <strong>Report Accident</strong>
+                                    <p>Report accident<br>&amp; help others</p>
+                                </div>
+                                <button onclick="openSection('reports')">Report Now</button>
+                            </article>
+
+                            <article class="action-card orange-card">
+                                <div class="action-icon">⚠</div>
+                                <div>
+                                    <strong>Pothole Report</strong>
+                                    <p>Report potholes<br>&amp; road issues</p>
+                                </div>
+                                <button onclick="openSection('reports')">Report Now</button>
+                            </article>
+
+                            <article class="action-card green-card">
+                                <div class="action-icon">⌘</div>
+                                <div>
+                                    <strong>Safe Route</strong>
+                                    <p>Find safest route<br>to destination</p>
+                                </div>
+                                <button onclick="openSection('safe-route')">Find Route</button>
+                            </article>
+
+                            <article class="action-card red-card">
+                                <div class="action-icon">SOS</div>
+                                <div>
+                                    <strong>Emergency SOS</strong>
+                                    <p>Need immediate<br>help?</p>
+                                </div>
+                                <button onclick="triggerSOS()">Send SOS</button>
+                            </article>
+
+                        </div>
+
+
+                        <!-- Recent reports. -->
+                        <article class="panel reports-panel">
+
+                            <div class="panel-heading">
+                                <h2>Recent Reports</h2>
+                                <button onclick="openSection('reports')">View All</button>
+                            </div>
+
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Location</th>
+                                            <th>Description</th>
+                                            <th>Time</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr>
+                                            <td>🚗 Accident</td>
+                                            <td>Mussoorie Road</td>
+                                            <td>Car collided with bike</td>
+                                            <td>10 min ago</td>
+                                            <td><span class="status resolved">Resolved</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>⚠ Pothole</td>
+                                            <td>Rajpur Road</td>
+                                            <td>Large pothole on left side</td>
+                                            <td>25 min ago</td>
+                                            <td><span class="status progress">In Progress</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>🚗 Accident</td>
+                                            <td>Haridwar Bypass</td>
+                                            <td>Multiple vehicle collision</td>
+                                            <td>1 hour ago</td>
+                                            <td><span class="status resolved">Resolved</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </article>
+
+                    </div>
+
+
+                    <!-- Right-side information panels. -->
+                    <div class="right-column">
+
+                        <!-- Active alerts. -->
+                        <article class="panel alerts-panel">
+                            <div class="panel-heading">
+                                <h2>Active Alerts (3)</h2>
+                                <button onclick="openSection('alerts')">View All</button>
+                            </div>
+
+                            <div class="alert-row">
+                                <div class="alert-icon red">!</div>
+                                <div>
+                                    <strong>High Risk Zone</strong>
+                                    <p>You are entering an accident prone area</p>
+                                </div>
+                                <b class="ahead red-text">200 m ahead</b>
+                            </div>
+
+                            <div class="alert-row">
+                                <div class="alert-icon orange">⚠</div>
+                                <div>
+                                    <strong>Hill Area</strong>
+                                    <p>Steep roads and sharp turns ahead</p>
+                                </div>
+                                <b class="ahead orange-text">400 m ahead</b>
+                            </div>
+
+                            <div class="alert-row">
+                                <div class="alert-icon purple">✦</div>
+                                <div>
+                                    <strong>Wildlife Zone</strong>
+                                    <p>Wild animals crossing area</p>
+                                </div>
+                                <b class="ahead purple-text">600 m ahead</b>
+                            </div>
+                        </article>
+
+
+                        <!-- Risk trend chart. -->
+                        <article class="panel chart-panel">
+                            <div class="panel-heading">
+                                <h2>Risk Score Trend</h2>
+                                <select>
+                                    <option>Today</option>
+                                    <option>This Week</option>
+                                </select>
+                            </div>
+
+                            <div class="chart">
+                                <div class="y-axis">
+                                    <span>100</span>
+                                    <span>75</span>
+                                    <span>50</span>
+                                    <span>25</span>
+                                    <span>0</span>
+                                </div>
+
+                                <svg viewBox="0 0 500 180" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
+                                            <stop offset="0" stop-opacity=".45" />
+                                            <stop offset="1" stop-opacity="0" />
+                                        </linearGradient>
+                                    </defs>
+
+                                    <path
+                                        d="M0 130 C40 115, 55 80, 90 105 S135 130, 165 92 S215 105, 250 94 S290 48, 320 100 S370 135, 400 90 S455 112, 500 70 L500 180 L0 180Z"
+                                        fill="url(#area)"
+                                    />
+
+                                    <path
+                                        d="M0 130 C40 115, 55 80, 90 105 S135 130, 165 92 S215 105, 250 94 S290 48, 320 100 S370 135, 400 90 S455 112, 500 70"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="4"
+                                    />
+
+                                    <circle
+                                        cx="500"
+                                        cy="70"
+                                        r="6"
+                                        fill="currentColor"
+                                    />
+                                </svg>
+
+                                <div class="chart-labels">
+                                    <span>12 AM</span>
+                                    <span>4 AM</span>
+                                    <span>8 AM</span>
+                                    <span>12 PM</span>
+                                    <span>4 PM</span>
+                                    <span>8 PM</span>
+                                    <span>12 AM</span>
+                                </div>
+
+                                <div class="score-tooltip">
+                                    <b>82</b>
+                                    <small>High Risk</small>
+                                </div>
+                            </div>
+                        </article>
+
+
+                        <!-- Nearby services. -->
+                        <article class="panel services-panel">
+                            <div class="panel-heading">
+                                <h2>Nearby Services</h2>
+                                <button onclick="openSection('services')">View All</button>
+                            </div>
+
+                            <div class="service-row">
+                                <div class="service-icon">✚</div>
+                                <div>
+                                    <strong>City Hospital</strong>
+                                    <p>2.4 km away</p>
+                                </div>
+                                <span>0135-1234567</span>
+                                <button>☎</button>
+                            </div>
+
+                            <div class="service-row">
+                                <div class="service-icon">▣</div>
+                                <div>
+                                    <strong>Dehradun Ambulance</strong>
+                                    <p>1.8 km away</p>
+                                </div>
+                                <span>102</span>
+                                <button>☎</button>
+                            </div>
+
+                            <div class="service-row">
+                                <div class="service-icon blue-bg">♟</div>
+                                <div>
+                                    <strong>Traffic Police</strong>
+                                    <p>1.2 km away</p>
+                                </div>
+                                <span>100</span>
+                                <button>☎</button>
+                            </div>
+                        </article>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 05. MODULE 1 — LIVE MAP
+                 ================================================= -->
+            <section id="live-map" class="page-section module-page">
+                <div class="module-hero">
+                    <span>LIVE MAP</span>
+                    <h2>Live Safety Map</h2>
+                    <p>Track risk zones, road conditions, weather and nearby hazards.</p>
+                </div>
+                <div class="live-map-shell">
+                    <div class="live-map-card">
+
+
+                        <div class="route-inline-search" style="display:flex;gap:8px;margin:10px 0;position:relative;z-index:1200;">
+        <input id="destinationInput" type="text" placeholder="Enter destination..." style="flex:1;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:#071c30;color:#fff;">
+        <button id="findRouteBtn" type="button" class="osm-zone-btn">Find Route</button>
+    </div><div id="roadSafetyMap" aria-label="SafeRoad live map"></div>
+<div id="routeWeatherResults" class="route-weather-results" style="margin-top:12px;"></div>
+
+
+                        <div class="osm-zone-toolbar" data-osm-toolbar="live">
+                            <button type="button" class="osm-zone-btn active" data-zone="schools">🏫 Schools</button>
+                            <button type="button" class="osm-zone-btn active" data-zone="hills">⛰️ Hills</button>
+                            <button type="button" class="osm-zone-btn active" data-zone="wildlife">🐘 Wildlife</button>
+                            <button type="button" class="osm-zone-btn active" data-zone="steepRoads">🛣️ Steep Roads</button>
+                            <button type="button" class="osm-zone-btn" id="directionBtn">🧭 Direction</button>
+                            <button type="button" class="osm-clear-btn" id="clearSelectedBtn">✕ Clear</button>
+                        </div>
+                        <div class="osm-zone-status" data-osm-status="live">Saved zones + live OSM: zoom into an area to load live features.</div>
+
+                        <div class="map-controls">
+                            <button id="zoomInBtn" type="button" title="Zoom in">+</button>
+                            <button id="zoomOutBtn" type="button" title="Zoom out">−</button>
+                            <button id="locateMeBtn" type="button" title="My location">◎</button>
+                        </div>
+
+                        <div class="map-legend">
+                            <span>🏫 School</span>
+                            <span>⛰️ Hill</span>
+                            <span>🐘 Protected Area</span>
+                            <span>🛣️ Steep Road</span>
+                        </div>
+                    </div>
+
+                    <aside class="map-side-panel">
+                        <h3>Live Safety Status</h3>
+                        <p>GPS location and nearby road hazards.</p>
+
+                        <div class="location-box">
+                            <strong id="currentLocationName">Waiting for GPS...</strong>
+                            <small id="currentLocationCoords">Location permission required</small>
+                        </div>
+
+                        <div class="location-box">
+                            <strong id="selectedLocationName">No location selected</strong>
+                            <small id="selectedLocationCoords">Click anywhere on the map</small>
+                        </div>
+
+                        <div id="osmZoneList" class="hazard-list">
+                            <div class="hazard-item">
+                                <strong>Waiting for OSM data...</strong>
+                                <span>Zoom in or move the map to load real nearby zones.</span>
+                            </div>
+                        </div>
+                        <div class="hazard-item">
+                            <strong>🟢 GPS Tracking</strong>
+                            <span>Your position updates automatically while permission is enabled.</span>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 06. MODULE 2 — AI RISK PREDICTION
+                 ================================================= -->
+            <section id="risk" class="page-section module-page">
+                <div class="module-hero">
+                    <span>AI MODULE</span>
+                    <h2>Accident Risk Prediction</h2>
+                    <p>Historical accidents, weather, road condition, traffic and safety zones.</p>
+                </div>
+
+                <div class="metric-grid">
+                    <div class="metric">
+                        <b>82%</b>
+                        <span>Current Risk Score</span>
+                    </div>
+                    <div class="metric">
+                        <b>HIGH</b>
+                        <span>Risk Level</span>
+                    </div>
+                    <div class="metric">
+                        <b>94%</b>
+                        <span>Model Confidence</span>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 07. MODULE 3 — SAFETY ALERTS
+                 ================================================= -->
+            <section id="alerts" class="page-section module-page">
+                <div class="module-hero">
+                    <span>SAFETY</span>
+                    <h2>Safety Alerts</h2>
+                    <p>Location-aware preventive warnings before risky conditions.</p>
+                </div>
+
+                <div class="module-list">
+                    <div>🔴 High Risk Zone <span>200 m ahead</span></div>
+                    <div>🟠 Hill Area <span>400 m ahead</span></div>
+                    <div>🟣 Wildlife Zone <span>600 m ahead</span></div>
+                    <div>🌧 Bad Weather <span>Active</span></div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 08. MODULE 4 — ACCIDENT / POTHOLE REPORTS
+                 ================================================= -->
+            <section id="reports" class="page-section module-page">
+                <div class="module-hero">
+                    <span>REPORTING</span>
+                    <h2>Accident &amp; Pothole Reports</h2>
+                    <p>Submit road incidents and road-condition problems for analysis.</p>
+                </div>
+
+                <div class="report-form">
+                    <input placeholder="Location">
+
+                    <select>
+                        <option>Accident</option>
+                        <option>Pothole</option>
+                        <option>Road Condition</option>
+                    </select>
+
+                    <textarea placeholder="Describe the issue..."></textarea>
+
+                    <button class="primary-large">Submit Report</button>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 09. MODULE 5 — SAFE ROUTE
+                 ================================================= -->
+            <section id="safe-route" class="page-section module-page">
+                <div class="module-hero">
+                    <span>ROUTE</span>
+                    <h2>Safe Route Recommendation</h2>
+                    <p>Choose the safest practical route, not simply the shortest route.</p>
+                </div>
+
+                <div class="route-options">
+                    <div>
+                        <b>Route A</b>
+                        <span>12.4 km • 28 min</span>
+                        <strong>HIGH RISK</strong>
+                    </div>
+
+                    <div class="recommended">
+                        <b>Route B ★ RECOMMENDED</b>
+                        <span>14.1 km • 31 min</span>
+                        <strong>LOW RISK</strong>
+                    </div>
+
+                    <div>
+                        <b>Route C</b>
+                        <span>11.8 km • 25 min</span>
+                        <strong>MEDIUM RISK</strong>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 10. MODULE 6 — EMERGENCY SOS
+                 ================================================= -->
+            <section id="emergency" class="page-section module-page">
+                <div class="module-hero danger-hero">
+                    <span>EMERGENCY</span>
+                    <h2>SOS &amp; Accident Assistance</h2>
+                    <p>Manual SOS, possible accident detection, countdown and GPS sharing.</p>
+                </div>
+
+                <button class="sos-big" onclick="triggerSOS()">
+                    SEND EMERGENCY SOS
+                </button>
+
+                <div class="module-list">
+                    <div>📍 GPS Location Sharing <span>Ready</span></div>
+                    <div>📞 Emergency Contact <span>Configured</span></div>
+                    <div>🏥 Nearby Hospital <span>2.4 km</span></div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 11. MODULE 7 — NEARBY SERVICES
+                 ================================================= -->
+            <section id="services" class="page-section module-page">
+                <div class="module-hero">
+                    <span>SERVICES</span>
+                    <h2>Nearby Emergency Services</h2>
+                    <p>Hospitals, ambulances and traffic police around your current location.</p>
+                </div>
+
+                <div class="service-cards">
+                    <div>
+                        🏥
+                        <b>City Hospital</b>
+                        <span>2.4 km • 0135-1234567</span>
+                    </div>
+
+                    <div>
+                        🚑
+                        <b>Dehradun Ambulance</b>
+                        <span>1.8 km • 102</span>
+                    </div>
+
+                    <div>
+                        👮
+                        <b>Traffic Police</b>
+                        <span>1.2 km • 100</span>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- =================================================
+                 12. MODULE 8 — ANALYTICS
+                 ================================================= -->
+            <section id="analytics" class="page-section module-page">
+                <div class="module-hero">
+                    <span>ANALYTICS</span>
+                    <h2>Road Safety Analytics</h2>
+                    <p>Accident trends, risk distribution, reports and safety-zone statistics.</p>
+                </div>
+
+                <div class="metric-grid">
+                    <div class="metric">
+                        <b>1,245</b>
+                        <span>Total Accidents</span>
+                    </div>
+                    <div class="metric">
+                        <b>86</b>
+                        <span>High Risk Locations</span>
+                    </div>
+                    <div class="metric">
+                        <b>342</b>
+                        <span>Road Reports</span>
+                    </div>
+                    <div class="metric">
+                        <b>12</b>
+                        <span>Active SOS</span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- Toast notification container. -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Leaflet map library -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+    ></script>
+
+    <!-- Main dashboard JavaScript. -->
+    <script src="js/app.js"></script>
+
+    <!-- SafeRoad live map + GPS + destination routing. -->
+    <script src="js/live-map.js"></script>
+
+</body>
+
+</html>

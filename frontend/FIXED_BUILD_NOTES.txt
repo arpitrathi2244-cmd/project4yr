@@ -1,0 +1,21 @@
+SafeRoad — Fully Checked Map/Search Fix
+
+What was fixed:
+1. Removed the duplicate delegated click handler that was binding +, -, and GPS buttons twice.
+2. Kept one direct click handler for each map control.
+3. Fixed destination autocomplete:
+   - shows local suggestions immediately for common Indian destinations;
+   - uses OpenStreetMap Nominatim online search;
+   - falls back to Photon if Nominatim is unavailable.
+4. Search button and Enter key both calculate a route.
+5. Clicking a suggestion calculates the route from the real browser GPS position.
+6. No fake current location is displayed. India is only the initial map overview.
+7. GPS error text now clearly reports blocked/unavailable permission.
+8. Removed the conflicting map-search Enter handler from app.js.
+9. Search result buttons are styled to match the existing dark UI.
+10. JavaScript syntax, HTML IDs, script references, and map-control bindings were statically checked.
+
+Important:
+- Browser/device Location permission cannot be enabled by JavaScript.
+- If Chrome has blocked location for 127.0.0.1:5500, allow Location in Site settings and reload.
+- Internet is required for online place search, map tiles, and OSRM routing. Common fallback destinations still appear if the search provider is unavailable.

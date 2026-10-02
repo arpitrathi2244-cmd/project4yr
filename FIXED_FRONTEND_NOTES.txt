@@ -1,0 +1,21 @@
+SafeRoad frontend fixes applied
+
+1. GPS now automatically centers both maps on the first live GPS fix.
+2. GPS status/error is shown on the map and live-map side panel.
+3. Dashboard and live-map GPS coordinates are updated continuously.
+4. Current GPS location is reverse-geocoded to show a place name.
+5. Search suggestions are now explicitly shown (previous CSS kept them hidden).
+6. Search results use OpenStreetMap/Nominatim and selecting/searching a place places a real destination marker.
+7. Search/Enter selects the first result and marks it on the map.
+8. Added Direction button to both map toolbars.
+9. Direction uses the current GPS position -> searched destination through OSRM and draws the real driving route.
+10. Clear removes selected map marker, searched destination marker, route, search text and suggestions.
+11. Map click continues to reverse-geocode the clicked location and show name + coordinates.
+
+Backend files are unchanged by this fix because the current API already exposes the required safety-zone endpoints.
+
+After replacing files:
+- Start Spring Boot backend on http://localhost:8080
+- Open frontend from http://127.0.0.1:5500 (not file://)
+- Allow Location permission in Chrome
+- Hard refresh with Ctrl+F5

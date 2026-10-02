@@ -1,0 +1,385 @@
+ /* Live map used inside the dashboard */
+        .live-map-shell {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            gap: 16px;
+            min-height: 540px;
+            margin-top: 18px;
+        }
+
+        .live-map-card {
+            position: relative;
+            min-height: 540px;
+            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: #0b2036;
+        }
+
+        #roadSafetyMap {
+            width: 100%;
+            height: 540px;
+            min-height: 540px;
+            z-index: 1;
+        }
+
+        .map-top-controls {
+            position: absolute;
+            z-index: 1000;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            pointer-events: none;
+        }
+
+        .map-top-controls > * { pointer-events: auto; }
+
+        .map-filter, .map-action-btn {
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(5,24,43,.92);
+            color: #fff;
+            border-radius: 10px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+
+        .map-filter.active {
+            background: #1877ff;
+            border-color: #4b92ff;
+        }
+
+        .map-search {
+            display: flex;
+            gap: 7px;
+            margin-left: auto;
+        }
+
+        .map-search input {
+            width: 230px;
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #fff;
+            background: rgba(5,24,43,.94);
+            outline: none;
+        }
+
+        .map-controls {
+            position: absolute;
+            z-index: 1000;
+            right: 14px;
+            top: 72px;
+            display: grid;
+            gap: 7px;
+        }
+
+        .map-controls button {
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            background: rgba(5,24,43,.94);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .map-legend {
+            position: absolute;
+            z-index: 1000;
+            left: 14px;
+            bottom: 14px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: #fff;
+            background: rgba(5,24,43,.92);
+            border: 1px solid rgba(255,255,255,.14);
+            font-size: 12px;
+        }
+
+        .map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .legend-low { background:#18d98b; }
+        .legend-medium { background:#ffb020; }
+        .legend-high { background:#ff405d; }
+        .legend-wildlife { background:#9b4dff; }
+
+        .map-side-panel {
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,.12);
+            background: rgba(7,28,48,.92);
+            color: #fff;
+        }
+
+        .map-side-panel h3 { margin: 0 0 5px; }
+        .map-side-panel p { margin: 0 0 16px; opacity: .72; font-size: 13px; }
+        .location-box {
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.05);
+            margin-bottom: 14px;
+        }
+        .location-box strong { display:block; margin-bottom: 4px; }
+        .location-box small { opacity:.7; }
+        .hazard-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,.09);
+        }
+        .hazard-item:last-child { border-bottom:0; }
+        .hazard-item strong { display:block; }
+        .hazard-item span { font-size:12px; opacity:.7; }
+
+        /* Dashboard real live map - replaces the decorative map. */
+        .dashboard-map-stage {
+            position: relative;
+            width: 100%;
+            height: 470px;
+            min-height: 470px;
+            overflow: hidden;
+            border-radius: 14px;
+            background: #123b31;
+        }
+
+        #safeRoadLiveMap {
+            width: 100%;
+            height: 100%;
+            min-height: 470px;
+            z-index: 1;
+        }
+
+        .dashboard-map-filters {
+            position: absolute;
+            z-index: 1000;
+            top: 14px;
+            left: 14px;
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-map-filter {
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(5,24,43,.92);
+            color: #fff;
+            border-radius: 9px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+        }
+
+        .dashboard-map-filter.active {
+            background: #1877ff;
+            border-color: #4b92ff;
+        }
+
+        .dashboard-map-controls {
+            position: absolute;
+            z-index: 1000;
+            right: 14px;
+            top: 72px;
+            display: grid;
+            gap: 7px;
+        }
+
+        .dashboard-map-controls button {
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            background: rgba(5,24,43,.94);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .dashboard-map-legend {
+            position: absolute;
+            z-index: 1000;
+            left: 14px;
+            bottom: 14px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: #fff;
+            background: rgba(5,24,43,.92);
+            border: 1px solid rgba(255,255,255,.14);
+            font-size: 12px;
+        }
+
+        .dashboard-map-legend span { display:inline-flex; align-items:center; gap:5px; }
+
+        @media (max-width: 900px) {
+            .dashboard-map-stage, #safeRoadLiveMap { height: 420px; min-height: 420px; }
+            .dashboard-map-filter { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media (max-width: 900px) {
+            .live-map-shell { grid-template-columns: 1fr; }
+            .map-side-panel { min-height: auto; }
+            .map-search { width:100%; margin-left:0; }
+            .map-search input { width:100%; }
+        }
+
+        /* =========================================================
+   SEARCH AUTOCOMPLETE - FIX
+   ========================================================= */
+
+.search-box,
+.search-container,
+.destination-search,
+.map-search {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Suggestions wrapper */
+.search-suggestions,
+.search-results,
+.autocomplete-results,
+.autocomplete-dropdown,
+.location-suggestions,
+.search-dropdown {
+    position: absolute !important;
+
+    top: calc(100% + 8px) !important;
+    left: 0 !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    max-height: 260px !important;
+    overflow-y: auto !important;
+
+    background: #08213a !important;
+    border: 1px solid rgba(80, 170, 255, 0.35) !important;
+    border-radius: 0 0 14px 14px !important;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35) !important;
+
+    padding: 6px !important;
+    margin: 0 !important;
+
+    z-index: 99999 !important;
+
+    box-sizing: border-box !important;
+}
+
+/* Individual suggestion */
+.search-suggestions > *,
+.search-results > *,
+.autocomplete-results > *,
+.autocomplete-dropdown > *,
+.location-suggestions > *,
+.search-dropdown > * {
+    display: block !important;
+
+    width: 100% !important;
+    min-height: 52px !important;
+
+    padding: 12px 16px !important;
+    margin: 2px 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: transparent !important;
+    color: #ffffff !important;
+
+    border: none !important;
+    border-radius: 9px !important;
+
+    text-align: left !important;
+
+    cursor: pointer !important;
+}
+
+/* Hover */
+.search-suggestions > *:hover,
+.search-results > *:hover,
+.autocomplete-results > *:hover,
+.autocomplete-dropdown > *:hover,
+.location-suggestions > *:hover,
+.search-dropdown > *:hover {
+    background: #12395d !important;
+    color: #ffffff !important;
+}
+
+/* Main place name */
+.search-suggestions strong,
+.search-results strong,
+.autocomplete-results strong,
+.autocomplete-dropdown strong {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Address / secondary text */
+.search-suggestions small,
+.search-results small,
+.autocomplete-results small,
+.autocomplete-dropdown small {
+    display: block !important;
+
+    margin-top: 3px !important;
+
+    color: #a9c7df !important;
+    font-size: 12px !important;
+}
+
+/* Scrollbar */
+.search-suggestions::-webkit-scrollbar,
+.search-results::-webkit-scrollbar,
+.autocomplete-results::-webkit-scrollbar,
+.autocomplete-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.search-suggestions::-webkit-scrollbar-thumb,
+.search-results::-webkit-scrollbar-thumb,
+.autocomplete-results::-webkit-scrollbar-thumb,
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+    background: #3579b7;
+    border-radius: 10px;
+}
+/* ==========================================
+   OSM ROAD NAMES
+   ========================================== */
+
+.osm-road-label {
+    background: transparent !important;
+    border: none !important;
+}
+
+.osm-road-label span {
+    display: block;
+
+    color: #333;
+
+    background: rgba(255, 255, 255, 0.85);
+
+    padding: 1px 4px;
+
+    border-radius: 3px;
+
+    font-size: 11px;
+
+    font-weight: 500;
+
+    white-space: nowrap;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+
+    transform: translate(-50%, -50%);
+}

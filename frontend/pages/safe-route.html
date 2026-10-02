@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Safe Route • Road Safety</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .safe-route-page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .route-options {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .safe-road-route-card {
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 15px;
+            background: rgba(5, 24, 43, 0.78);
+            color: #fff;
+        }
+
+        .safe-road-route-card.recommended {
+            border-color: #18d98b;
+            box-shadow: 0 0 0 1px rgba(24, 217, 139, 0.15);
+        }
+
+        .safe-road-route-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .safe-road-route-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 9px;
+            opacity: 0.9;
+        }
+
+        .safe-road-route-factors {
+            margin-top: 9px;
+            font-size: 13px;
+            opacity: 0.82;
+        }
+
+        .safe-road-route-ai {
+            margin-top: 10px;
+            display: grid;
+            gap: 5px;
+            font-size: 13px;
+            opacity: 0.86;
+        }
+
+        .route-low {
+            color: #18d98b;
+            font-weight: 800;
+        }
+
+        .route-medium {
+            color: #ffb020;
+            font-weight: 800;
+        }
+
+        .route-high {
+            color: #ff405d;
+            font-weight: 800;
+        }
+
+        .route-note {
+            margin-top: 14px;
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-mark">🛡</div>
+
+            <div>
+                <h1>Road Safety &amp; Accident Prevention System</h1>
+                <p>Safer Roads, Brighter Tomorrows</p>
+            </div>
+
+        </div>
+
+        <div class="top-actions">
+
+            <a class="auth-btn outline" href="sign-in.html">
+                Sign In
+            </a>
+
+            <a class="auth-btn primary" href="sign-up.html">
+                Sign Up
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+    <main class="main" style="margin-left: 0;">
+
+        <section class="page-section module-page active safe-route-page">
+
+            <div class="module-hero">
+
+                <span>ROUTE</span>
+
+                <h2>Safe Route Recommendation</h2>
+
+                <p>
+                    Choose the safest practical route using the integrated
+                    AI risk analysis.
+                </p>
+
+            </div>
+
+
+            <!-- =========================
+                 ROUTE CARDS
+            ========================== -->
+
+            <div id="standaloneRouteOptions" class="route-options">
+
+                <div class="safe-road-route-card">
+
+                    <b>No route calculated yet.</b>
+
+                    <div class="route-note">
+                        Go back to Dashboard, search a destination and press
+                        the Direction (➤) button.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 INFORMATION NOTE
+            ========================== -->
+
+            <p class="route-note">
+
+                Routes are generated from the routing engine.
+                The final risk is calculated using the existing trained
+                AI model together with route-specific live weather,
+                live traffic and historical accident proximity.
+
+            </p>
+
+
+            <br>
+
+
+            <!-- =========================
+                 BACK BUTTON
+            ========================== -->
+
+            <a class="auth-btn primary" href="../index.html">
+                ← Back to Dashboard
+            </a>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+(function () {
+
+    const container =
+        document.getElementById("standaloneRouteOptions");
+
+
+    /*
+     * Routes are saved by map.js after route generation
+     * and AI analysis.
+     */
+    let routes = [];
+
+    try {
+
+        routes = JSON.parse(
+            localStorage.getItem("saferoad.routeCandidates") || "[]"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not read saved Safe Route data:",
+            error
+        );
+
+        routes = [];
+
+    }
+
+
+    /*
+     * Exact AI recommended route ID saved by map.js.
+     */
+    const recommendedId =
+        localStorage.getItem(
+            "saferoad.recommendedRouteId"
+        ) || "";
+
+
+    /*
+     * No routes available.
+     */
+    if (!Array.isArray(routes) || !routes.length) {
+
+        return;
+
+    }
+
+
+    /*
+     * Escape text before inserting it into HTML.
+     */
+    const escapeHtml = value => {
+
+        return String(value ?? "")
+
+            .replaceAll("&", "&amp;")
+
+            .replaceAll("<", "&lt;")
+
+            .replaceAll(">", "&gt;")
+
+            .replaceAll('"', "&quot;")
+
+            .replaceAll("'", "&#039;");
+
+    };
+
+
+    /*
+     * ============================================
+     * FIND RECOMMENDED ROUTE
+     * ============================================
+     *
+     * Priority:
+     *
+     * 1. Exact AI recommendedRouteId
+     * 2. Lowest final AI risk percentage
+     * 3. Highest safety score for older saved data
+     */
+
+    let recommendedIndex =
+        routes.findIndex(
+            route => route.id === recommendedId
+        );
+
+
+    /*
+     * If exact ID is unavailable,
+     * use lowest final AI risk.
+     */
+    if (recommendedIndex < 0) {
+
+        const routesWithRisk = routes
+
+            .map((route, index) => {
+
+                const risk =
+                    Number(
+                        route.ai?.finalRiskPercentage
+                    );
+
+                return {
+                    index,
+                    risk
+                };
+
+            })
+
+            .filter(
+                item => Number.isFinite(item.risk)
+            );
+
+
+        if (routesWithRisk.length) {
+
+            recommendedIndex =
+                routesWithRisk.reduce(
+                    (best, item) =>
+                        item.risk < best.risk
+                            ? item
+                            : best,
+                    routesWithRisk[0]
+                ).index;
+
+        }
+
+    }
+
+
+    /*
+     * Last fallback for old localStorage data.
+     */
+    if (recommendedIndex < 0) {
+
+        recommendedIndex =
+            routes.reduce(
+                (
+                    bestIndex,
+                    route,
+                    index,
+                    allRoutes
+                ) => {
+
+                    return Number(
+                        route.safetyScore || 0
+                    ) >
+
+                    Number(
+                        allRoutes[
+                            bestIndex
+                        ].safetyScore || 0
+                    )
+
+                        ? index
+                        : bestIndex;
+
+                },
+
+                0
+            );
+
+    }
+
+
+    /*
+     * ============================================
+     * RENDER ALL ROUTES
+     * ============================================
+     *
+     * IMPORTANT:
+     * We do NOT filter routes here.
+     * Every route saved by map.js is displayed.
+     */
+
+    container.innerHTML = routes
+
+        .map((route, index) => {
+
+            const ai = route.ai || {};
+
+
+            /*
+             * Final AI risk level.
+             */
+            const risk =
+                String(
+                    ai.finalRiskLevel ||
+                    route.risk ||
+                    "ANALYZING"
+                ).toUpperCase();
+
+
+            /*
+             * Risk colour.
+             */
+            const riskClass =
+                risk.includes("LOW")
+
+                    ? "route-low"
+
+                    : risk.includes("MEDIUM")
+
+                        ? "route-medium"
+
+                        : "route-high";
+
+
+            const recommended =
+                index === recommendedIndex;
+
+
+            /*
+             * Numeric AI values.
+             */
+            const finalRisk =
+                Number(
+                    ai.finalRiskPercentage
+                );
+
+
+            const historicalRisk =
+                Number(
+                    ai.historicalAccidentRiskPercentage
+                );
+
+
+            const weatherRisk =
+                Number(
+                    ai.liveWeatherRiskPercentage
+                );
+
+
+            const trafficRisk =
+                Number(
+                    ai.liveTrafficRiskPercentage
+                );
+
+
+            /*
+             * Route display.
+             */
+            return `
+
+                <div
+                    class="safe-road-route-card
+                    ${recommended ? "recommended" : ""}"
+                >
+
+                    <!-- ROUTE TITLE -->
+
+                    <div class="safe-road-route-title">
+
+                        <b>
+
+                            ${escapeHtml(
+                                route.name ||
+                                `Route ${String.fromCharCode(65 + index)}`
+                            )}
+
+                            ${
+                                recommended
+                                    ? " ★ RECOMMENDED"
+                                    : ""
+                            }
+
+                        </b>
+
+
+                        <span class="${riskClass}">
+
+                            ${escapeHtml(risk)}
+                            RISK
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- BASIC ROUTE INFORMATION -->
+
+                    <div class="safe-road-route-meta">
+
+                        <span>
+                            ${Number(
+                                route.distanceKm || 0
+                            ).toFixed(1)}
+                            km
+                        </span>
+
+
+                        <span>
+                            ${Math.max(
+                                1,
+                                Math.round(
+                                    Number(
+                                        route.durationMin || 0
+                                    )
+                                )
+                            )}
+                            min
+                        </span>
+
+
+                        <span>
+                            Safety
+                            ${Math.round(
+                                Number(
+                                    route.safetyScore || 0
+                                )
+                            )}
+                            /100
+                        </span>
+
+
+                        ${
+                            Number.isFinite(finalRisk)
+
+                                ? `
+                                    <span>
+                                        AI Risk
+                                        ${finalRisk.toFixed(1)}%
+                                    </span>
+                                  `
+
+                                : ""
+                        }
+
+                    </div>
+
+
+                    <!-- SAFETY ZONES -->
+
+                    <div class="safe-road-route-factors">
+
+                        🏫
+                        ${Number(
+                            route.nearbySchools || 0
+                        )}
+
+                        &nbsp;&nbsp;
+
+                        ⛰️
+                        ${Number(
+                            route.nearbyHills || 0
+                        )}
+
+                        &nbsp;&nbsp;
+
+                        🐘
+                        ${Number(
+                            route.nearbyWildlife || 0
+                        )}
+
+                    </div>
+
+
+                    <!-- AI DETAILS -->
+
+                    ${
+                        Number.isFinite(finalRisk)
+
+                            ? `
+
+                                <div class="safe-road-route-ai">
+
+                                    <div>
+
+                                        🌦️ Weather risk:
+
+                                        ${
+                                            Number.isFinite(
+                                                weatherRisk
+                                            )
+
+                                                ? weatherRisk.toFixed(1) + "%"
+
+                                                : "Unavailable"
+                                        }
+
+                                    </div>
+
+
+                                    <div>
+
+                                        🚦 Traffic risk:
+
+                                        ${
+                                            Number.isFinite(
+                                                trafficRisk
+                                            )
+
+                                                ? trafficRisk.toFixed(1) + "%"
+
+                                                : "Unavailable"
+                                        }
+
+                                    </div>
+
+
+                                    <div>
+
+                                        💥 Historical accident risk:
+
+                                        ${
+                                            Number.isFinite(
+                                                historicalRisk
+                                            )
+
+                                                ? historicalRisk.toFixed(1) + "%"
+
+                                                : "Unavailable"
+                                        }
+
+                                    </div>
+
+
+                                    <div>
+
+                                        📍 Nearby recorded crashes:
+
+                                        ${Number(
+                                            ai.nearbyAccidentCount || 0
+                                        )}
+
+                                        &nbsp; • &nbsp;
+
+                                        AI segments:
+
+                                        ${Number(
+                                            ai.aiSegmentCount || 0
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                              `
+
+                            : ""
+                    }
+
+                </div>
+
+            `;
+
+        })
+
+        .join("");
+
+
+})();
+</script>
+
+</body>
+</html>

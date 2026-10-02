@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency SOS • Road Safety</title>
+
+    <!-- Shared project stylesheet. -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         FILE: emergency.html
+         PROJECT: AI Road Safety & Accident Prevention System
+         PURPOSE: SOS & Accident Assistance module page.
+         ===================================================== -->
+
+    <div class="app-shell">
+
+        <!-- Top navigation -->
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">🛡</div>
+                <div>
+                    <h1>Road Safety &amp; Accident Prevention System</h1>
+                    <p>Safer Roads, Brighter Tomorrows</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <a class="auth-btn outline" href="sign-in.html">Sign In</a>
+                <a class="auth-btn primary" href="sign-up.html">Sign Up</a>
+            </div>
+        </header>
+
+        <!-- Module content -->
+        <main class="main" style="margin-left: 0;">
+            <section class="page-section module-page active">
+
+                <div class="module-hero danger-hero">
+                    <span>EMERGENCY</span>
+                    <h2>SOS & Accident Assistance</h2>
+                    <p>Manual SOS, possible accident detection, countdown and GPS sharing.</p>
+                </div>
+
+                <button class="sos-big" onclick="triggerSOS()">SEND EMERGENCY SOS</button>
+                <div class="module-list">
+                    <div>📍 GPS Location Sharing <span>Ready</span></div>
+                    <div>📞 Emergency Contact <span>Configured</span></div>
+                    <div>🏥 Nearby Hospital <span>2.4 km</span></div>
+                </div>
+
+                <br>
+
+                <!-- Return to the dashboard. -->
+                <a class="auth-btn primary" href="../index.html">← Back to Dashboard</a>
+
+            </section>
+        </main>
+
+    </div>
+
+    <!-- Main application JavaScript provides shared interactions. -->
+    <script src="../js/app.js"></script>
+
+</body>
+
+</html>

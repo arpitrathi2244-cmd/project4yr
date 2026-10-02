@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- =====================================================
+         FILE: sign-in.html
+         PROJECT: AI Road Safety & Accident Prevention System
+         PURPOSE: User sign-in page.
+         ===================================================== -->
+
+    <title>Sign In • Road Safety</title>
+
+    <!-- Shared project stylesheet. -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         SIGN-IN PAGE
+         Same centered glass-card format used by registration.
+         ===================================================== -->
+    <main class="auth-page">
+
+        <section class="auth-card" aria-labelledby="loginTitle">
+
+            <!-- Brand icon -->
+            <div class="brand-mark">🛡</div>
+
+            <!-- Login heading -->
+            <h1 id="loginTitle">Welcome Back</h1>
+            <p>Sign in to your Road Safety account</p>
+
+            <!-- Login form -->
+            <form id="loginForm" novalidate>
+
+                <label for="loginEmail">Email</label>
+                <input
+                    id="loginEmail"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    placeholder="you@example.com"
+                >
+
+                <label for="loginPassword">Password</label>
+                <input
+                    id="loginPassword"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    placeholder="••••••••"
+                >
+
+                <div
+                    class="message"
+                    id="loginMessage"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+                <button
+                    class="primary-large"
+                    type="submit"
+                >
+                    Sign In
+                </button>
+
+            </form>
+
+            <!-- Registration link -->
+            <div class="auth-links">
+                <span>Don't have an account?</span>
+                <a href="sign-up.html">Sign Up</a>
+            </div>
+
+            <!-- Dashboard link -->
+            <a
+                class="back-link"
+                href="../index.html"
+            >
+                ← Back to Dashboard
+            </a>
+
+        </section>
+
+    </main>
+
+    <!-- Login logic. -->
+    <script src="../js/login.js"></script>
+
+</body>
+
+</html>

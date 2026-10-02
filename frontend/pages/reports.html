@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accident & Pothole Reports • Road Safety</title>
+
+    <!-- Shared project stylesheet. -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         FILE: reports.html
+         PROJECT: AI Road Safety & Accident Prevention System
+         PURPOSE: Accident & Pothole Reports module page.
+         ===================================================== -->
+
+    <div class="app-shell">
+
+        <!-- Top navigation -->
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">🛡</div>
+                <div>
+                    <h1>Road Safety &amp; Accident Prevention System</h1>
+                    <p>Safer Roads, Brighter Tomorrows</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <a class="auth-btn outline" href="sign-in.html">Sign In</a>
+                <a class="auth-btn primary" href="sign-up.html">Sign Up</a>
+            </div>
+        </header>
+
+        <!-- Module content -->
+        <main class="main" style="margin-left: 0;">
+            <section class="page-section module-page active">
+
+                <div class="module-hero">
+                    <span>REPORTING</span>
+                    <h2>Accident & Pothole Reports</h2>
+                    <p>Submit road incidents and road-condition problems for analysis.</p>
+                </div>
+
+                <div class="report-form">
+                    <input placeholder="Location">
+                    <select>
+                        <option>Accident</option>
+                        <option>Pothole</option>
+                        <option>Road Condition</option>
+                    </select>
+                    <textarea placeholder="Describe the issue..."></textarea>
+                    <button class="primary-large">Submit Report</button>
+                </div>
+
+                <br>
+
+                <!-- Return to the dashboard. -->
+                <a class="auth-btn primary" href="../index.html">← Back to Dashboard</a>
+
+            </section>
+        </main>
+
+    </div>
+
+    <!-- Main application JavaScript provides shared interactions. -->
+    <script src="../js/app.js"></script>
+
+</body>
+
+</html>
