@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1728" />
+  <title>SafeRoad | Sensor Safety</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root{--bg:#07111f;--panel:#101f32;--panel2:#14263b;--text:#edf5ff;--muted:#9db0c7;--line:#263950;--green:#35d39a;--red:#ff5d67;--blue:#5ba8ff;--amber:#ffca68}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at top right,#142b46 0,#07111f 52%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+    .wrap{max-width:1000px;margin:auto;padding:26px 18px 44px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#35d39a,#158b87);display:grid;place-items:center;font-size:25px;box-shadow:0 8px 28px #35d39a25}.brand h1{font-size:20px;margin:0;letter-spacing:.2px}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.pill{border:1px solid var(--line);background:#102137;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px;white-space:nowrap}.hero{padding:28px;border:1px solid #28405a;border-radius:24px;background:linear-gradient(125deg,#122941,#0d1b2d 72%);box-shadow:0 18px 55px #0002}.eyebrow{color:var(--green);font-weight:800;text-transform:uppercase;letter-spacing:1.7px;font-size:11px}.hero h2{font-size:clamp(27px,4vw,40px);line-height:1.12;margin:12px 0}.hero p{color:#b5c5d8;max-width:650px;line-height:1.65;margin:0}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:750;font-size:14px;cursor:pointer;transition:transform .15s,opacity .15s}.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}.primary{background:var(--green);color:#06251e}.secondary{background:#213650;color:var(--text);border:1px solid #36516d}.danger{background:var(--red);color:#30080b}.small{padding:10px 13px;font-size:12px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}.card{border:1px solid var(--line);background:#0d1b2bdb;border-radius:20px;padding:22px}.card h3{font-size:16px;margin:0 0 5px}.sub{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 18px}.statusline{display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:13px;background:#14273b;margin:15px 0}.dot{width:9px;height:9px;border-radius:50%;background:#8193a8;box-shadow:0 0 0 4px #8193a81c}.dot.on{background:var(--green);box-shadow:0 0 0 4px #35d39a22}.dot.alert{background:var(--red);box-shadow:0 0 0 4px #ff5d6722}.statusText{font-size:13px;font-weight:700}.readings{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.metric{background:#14263a;border:1px solid #233b54;border-radius:13px;padding:12px}.metric span{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}.metric strong{font-size:17px;font-variant-numeric:tabular-nums}.helper{color:var(--muted);font-size:12px;line-height:1.6;margin-top:15px}.sosbox{border-color:#63313b;background:linear-gradient(150deg,#281925,#101b2b 78%)}.sosbox .eyebrow{color:#ff8c92}.sosbox h3{font-size:20px;margin:8px 0}.sosbox p{font-size:13px;line-height:1.6;color:#c2cbd7}.sos-actions{display:grid;gap:10px;margin-top:17px}.notice{padding:12px 14px;border:1px solid #3a5069;border-radius:12px;background:#0a1725;color:#aebfd1;font-size:12px;line-height:1.55;margin-top:18px}.notice strong{color:#f0f6ff}.alert-banner{display:none;margin-top:18px;border:1px solid #a83a47;background:#3a1823;border-radius:16px;padding:16px;align-items:center;justify-content:space-between;gap:14px}.alert-banner.show{display:flex}.alert-banner strong{display:block;color:#ff8c92;margin-bottom:4px}.alert-banner span{font-size:12px;color:#f1c5ca}.footer{text-align:center;color:#71859d;font-size:11px;margin-top:22px}.hidden{display:none!important}
+    @media(max-width:720px){.wrap{padding:17px 12px 30px}.top{align-items:flex-start}.pill{max-width:120px;text-align:center;white-space:normal}.hero{padding:22px 18px}.grid{grid-template-columns:1fr}.card{padding:18px}.readings{gap:7px}.metric{padding:10px 8px}.metric strong{font-size:15px}.alert-banner{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div class="brand"><div class="logo" aria-hidden="true">🛡️</div><div><h1>SafeRoad</h1><p>Road Safety & Accident Prevention System</p></div></div>
+      <div class="pill">Smartphone safety module</div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Personal safety monitoring</div>
+      <h2>One tap to enable<br/>sensor protection.</h2>
+      <p>When enabled, your phone’s motion sensors watch for a possible drop or sudden impact. If a drop pattern is detected, SafeRoad plays a repeating sound and vibration alert for up to 60 seconds.</p>
+      <div class="actions">
+        <button id="enableBtn" class="btn primary">Enable Safety Sensors</button>
+        <button id="disableBtn" class="btn secondary" disabled>Disable</button>
+      </div>
+      <div id="sensorStatus" class="statusline" role="status"><span id="statusDot" class="dot"></span><span id="statusText" class="statusText">Sensors are off — tap Enable to start.</span></div>
+      <div id="alertBanner" class="alert-banner" role="alert"><div><strong>⚠ Possible phone drop detected</strong><span id="alertCountdown">Alert sound and vibration active for up to 60 seconds.</span></div><button id="silenceBtn" class="btn secondary small">Silence alert</button></div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h3>Sensor status</h3><p class="sub">Live readings are shown only after you enable monitoring.</p>
+        <div class="readings">
+          <div class="metric"><span>Acceleration X</span><strong id="ax">—</strong></div>
+          <div class="metric"><span>Acceleration Y</span><strong id="ay">—</strong></div>
+          <div class="metric"><span>Acceleration Z</span><strong id="az">—</strong></div>
+          <div class="metric"><span>Rotation α</span><strong id="alpha">—</strong></div>
+          <div class="metric"><span>Rotation β</span><strong id="beta">—</strong></div>
+          <div class="metric"><span>Rotation γ</span><strong id="gamma">—</strong></div>
+        </div>
+        <p id="deviceNote" class="helper">For real sensor detection, open this page on your phone or tablet over HTTPS. Laptop motion data is not a reliable physical-drop test.</p>
+        <div class="actions"><button id="testBtn" class="btn secondary small">Test alert sound</button></div>
+      </section>
+
+      <section class="card sosbox">
+        <div class="eyebrow">Emergency assistance</div><h3>Need help right now?</h3>
+        <p>Use SOS to open a nearby ambulance search. If location permission is granted, the search is centred on your current location.</p>
+        <div class="sos-actions">
+          <button id="sosBtn" class="btn danger">SOS · Find Nearby Ambulance</button>
+          <button id="hospitalBtn" class="btn secondary">Find Nearby Hospitals</button>
+        </div>
+        <div class="notice"><strong>Important:</strong> This frontend opens a map search; it does not automatically dispatch an ambulance or contact emergency services. Call your local emergency number if there is immediate danger.</div>
+      </section>
+    </div>
+    <div class="footer">SafeRoad · Sensor monitoring starts only after you tap Enable · Alert auto-stops after 60 seconds</div>
+  </main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const enableBtn=$('enableBtn'), disableBtn=$('disableBtn'), statusText=$('statusText'), statusDot=$('statusDot');
+  let enabled=false, alertUntil=0, alertInterval=null, countdownInterval=null, audioCtx=null, toneTimer=null;
+  let freeFallAt=0, freeFallConfirmed=false, lastAlertAt=0;
+  const ALERT_MS=60000;
+
+  function setStatus(text, state='off') {
+    statusText.textContent=text; statusDot.className='dot'+(state==='on'?' on':state==='alert'?' alert':'');
+  }
+  function number(v){return Number.isFinite(v)?v.toFixed(2):'—'}
+  function playPattern(){
+    try {
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx) return;
+      if(!audioCtx) audioCtx=new Ctx();
+      if(audioCtx.state==='suspended') audioCtx.resume();
+      const now=audioCtx.currentTime;
+      // Loud, urgent alternating dual-tone alarm (device volume still applies).
+      [0,0.18,0.36,0.54].forEach((offset,i)=>{
+        const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+        osc.type='square';
+        osc.frequency.setValueAtTime(i%2===0?1250:1650,now+offset);
+        gain.gain.setValueAtTime(0.0001,now+offset);
+        gain.gain.exponentialRampToValueAtTime(0.42,now+offset+0.018);
+        gain.gain.setValueAtTime(0.42,now+offset+0.105);
+        gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.15);
+        osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now+offset);osc.stop(now+offset+0.16);
+      });
+    } catch(e){console.warn('Audio could not start:',e)}
+  }
+  function vibrate(){if(navigator.vibrate) navigator.vibrate([180,100,180,100,240]);}
+  function stopAlert(){
+    alertUntil=0;
+    if(alertInterval){clearInterval(alertInterval);alertInterval=null}
+    if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null}
+    if(navigator.vibrate) navigator.vibrate(0);
+    $('alertBanner').classList.remove('show');
+    if(enabled) setStatus('Monitoring active — no new drop pattern detected.','on');
+    else setStatus('Sensors are off — tap Enable to start.','off');
+  }
+  function startAlert(reason='Possible phone drop detected'){
+    const now=Date.now();
+    if(now-lastAlertAt<8000 || alertUntil>now) return;
+    lastAlertAt=now; alertUntil=now+ALERT_MS;
+    $('alertBanner').classList.add('show');
+    $('alertCountdown').textContent=reason+'. Alert continues for up to 60 seconds.';
+    setStatus('Possible drop detected — alert active!','alert');
+    playPattern();vibrate();
+    alertInterval=setInterval(()=>{
+      if(Date.now()>=alertUntil){stopAlert();return}
+      playPattern();vibrate();
+    },900);
+    countdownInterval=setInterval(()=>{
+      const left=Math.max(0,Math.ceil((alertUntil-Date.now())/1000));
+      $('alertCountdown').textContent=`Sound and vibration active · ${left}s remaining (up to 60 seconds).`;
+      if(left<=0) stopAlert();
+    },250);
+  }
+  function onMotion(e){
+    if(!enabled)return;
+    const a=e.accelerationIncludingGravity||e.acceleration;
+    if(!a)return;
+    const x=Number(a.x)||0,y=Number(a.y)||0,z=Number(a.z)||0;
+    $('ax').textContent=number(x);$('ay').textContent=number(y);$('az').textContent=number(z);
+    const magnitude=Math.sqrt(x*x+y*y+z*z);
+    const now=Date.now();
+
+    // Drop pattern: low total acceleration (free-fall) must come FIRST,
+    // remain low briefly, and then be followed by a strong impact.
+    // An impact or rotation by itself must never trigger the alarm.
+    if(magnitude < 3.0) {
+      if(!freeFallAt) {
+        freeFallAt = now;
+        freeFallConfirmed = false;
+      }
+      if(now - freeFallAt >= 100) freeFallConfirmed = true;
+    } else {
+      const freeFallDuration = freeFallAt ? now - freeFallAt : 0;
+      if(freeFallConfirmed && magnitude > 26 && freeFallDuration >= 100 && freeFallDuration <= 1200) {
+        startAlert('Free-fall followed by a sharp impact');
+        freeFallAt = 0;
+        freeFallConfirmed = false;
+        return;
+      }
+
+      // Clear stale/invalid candidates when the sequence did not complete.
+      if(!freeFallAt || freeFallDuration > 1200 || (!freeFallConfirmed && magnitude > 8)) {
+        freeFallAt = 0;
+        freeFallConfirmed = false;
+      }
+    }
+  }
+  function onOrientation(e){
+    if(!enabled)return;
+    $('alpha').textContent=number(e.alpha);$('beta').textContent=number(e.beta);$('gamma').textContent=number(e.gamma);
+    // Orientation is displayed for diagnostics only. Rotation alone does not
+    // trigger a drop alarm because ordinary tilting causes false positives.
+  }
+  async function enableSensors(){
+    enableBtn.disabled=true;
+    try{
+      // iOS Safari requires permission requests to be made from a user gesture.
+      const permissionRequests=[];
+      if(typeof DeviceMotionEvent!=='undefined' && typeof DeviceMotionEvent.requestPermission==='function') permissionRequests.push(DeviceMotionEvent.requestPermission());
+      if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function') permissionRequests.push(DeviceOrientationEvent.requestPermission());
+      const permissions=await Promise.all(permissionRequests);
+      if(permissions.some(p=>p!=='granted')) throw new Error('Motion sensor permission was not granted.');
+      if(!('DeviceMotionEvent' in window)) throw new Error('This browser does not provide motion sensor events. Try Chrome on Android or Safari on iPhone/iPad.');
+      window.addEventListener('devicemotion',onMotion);
+      window.addEventListener('deviceorientation',onOrientation);
+      enabled=true;enableBtn.textContent='Sensors Enabled';disableBtn.disabled=false;
+      setStatus('Monitoring active — phone/tablet motion sensors are enabled.','on');
+      $('deviceNote').textContent='Monitoring is active. Keep this page open and the device awake for the most reliable browser-based detection.';
+    }catch(err){
+      console.error(err);enableBtn.disabled=false;
+      setStatus(err.message||'Could not enable sensors. Use HTTPS and allow motion access.','off');
+    }
+  }
+  function disableSensors(){
+    enabled=false;window.removeEventListener('devicemotion',onMotion);window.removeEventListener('deviceorientation',onOrientation);
+    enableBtn.disabled=false;enableBtn.textContent='Enable Safety Sensors';disableBtn.disabled=true;
+    if(alertUntil)stopAlert();else setStatus('Sensors disabled.','off');
+    ['ax','ay','az','alpha','beta','gamma'].forEach(id=>$(id).textContent='—');
+  }
+  function openNearby(kind){
+    const query=kind==='ambulance'?'ambulance near me':'hospitals near me';
+    const fallback='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(query);
+    if(!navigator.geolocation){window.open(fallback,'_blank','noopener');return}
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const q=encodeURIComponent(kind==='ambulance'?'ambulance':'hospital');
+      const url=`https://www.google.com/maps/search/${q}/@${pos.coords.latitude},${pos.coords.longitude},14z`;
+      window.open(url,'_blank','noopener');
+    },()=>window.open(fallback,'_blank','noopener'),{enableHighAccuracy:true,timeout:7000,maximumAge:60000});
+  }
+  enableBtn.addEventListener('click',enableSensors);
+  disableBtn.addEventListener('click',disableSensors);
+  $('silenceBtn').addEventListener('click',stopAlert);
+  $('testBtn').addEventListener('click',()=>startAlert('Manual alert test'));
+  $('sosBtn').addEventListener('click',()=>openNearby('ambulance'));
+  $('hospitalBtn').addEventListener('click',()=>openNearby('hospital'));
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./service-worker.js').catch(console.warn);
+})();
+</script>
+</body>
+</html>

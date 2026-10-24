@@ -1,0 +1,13 @@
+{
+  "name": "SafeRoad Sensor Safety",
+  "short_name": "SafeRoad",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#0b1728",
+  "description": "Sensor-based phone safety alerts for the SafeRoad road safety project.",
+  "icons": [
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}

@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeRoad — Ambulance Assistance</title>
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f3f6f8; color:#17212b; }
+    header { background:#14212d; color:white; padding:20px; }
+    main { max-width:850px; margin:22px auto; padding:0 16px; }
+    .card { background:white; padding:20px; margin-bottom:16px; border-radius:14px; }
+    #incidentMap { height:320px; border-radius:10px; }
+    .danger { color:#c0392b; font-weight:bold; }
+    button { border:0; padding:13px 18px; border-radius:8px; cursor:pointer; }
+    #requestBtn { background:#c0392b; color:white; font-size:16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>🚑 SafeRoad Ambulance Assistance</h2>
+    <div>Accident incident details</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2 class="danger">⚠️ Possible Accident Report</h2>
+      <p><strong>Incident time:</strong> <span id="incidentTime">Unavailable</span></p>
+      <p><strong>Latitude:</strong> <span id="lat">Unavailable</span></p>
+      <p><strong>Longitude:</strong> <span id="lng">Unavailable</span></p>
+      <p id="locationStatus">Checking incident location...</p>
+    </section>
+
+    <section class="card">
+      <h3>Incident Location Map</h3>
+      <div id="incidentMap"></div>
+      <p><a id="mapLink" target="_blank" rel="noopener">Open location in maps</a></p>
+    </section>
+
+    <section class="card">
+      <h3>Ambulance Assistance</h3>
+      <p id="requestStatus">
+        This page displays the incident. No ambulance has been dispatched.
+      </p>
+      <button id="requestBtn">Request Ambulance</button>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const lat = Number(params.get("lat"));
+    const lng = Number(params.get("lng"));
+    const time = params.get("time");
+
+    document.getElementById("incidentTime").textContent =
+      time && !Number.isNaN(Date.parse(time))
+        ? new Date(time).toLocaleString()
+        : "Unavailable";
+
+    const validLocation =
+      params.has("lat") && params.has("lng") &&
+      Number.isFinite(lat) && Number.isFinite(lng) &&
+      Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+
+    const map = L.map("incidentMap").setView(
+      validLocation ? [lat, lng] : [28.8386, 78.7733],
+      validLocation ? 16 : 5
+    );
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    if (validLocation) {
+      document.getElementById("lat").textContent = lat.toFixed(6);
+      document.getElementById("lng").textContent = lng.toFixed(6);
+      document.getElementById("locationStatus").textContent =
+        "GPS location received.";
+
+      L.marker([lat, lng]).addTo(map)
+        .bindPopup("Reported incident location").openPopup();
+
+      document.getElementById("mapLink").href =
+        `https://www.google.com/maps?q=${lat},${lng}`;
+    } else {
+      document.getElementById("locationStatus").textContent =
+        "GPS location unavailable. Location permission or GPS may be disabled.";
+      document.getElementById("mapLink").removeAttribute("href");
+    }
+
+    document.getElementById("requestBtn").addEventListener("click", () => {
+      document.getElementById("requestStatus").textContent =
+        "Ambulance dispatch is not connected yet. This button cannot contact emergency services. If this is a real emergency in India, call 112 directly.";
+    });
+  </script>
+</body>
+</html>
+```
+
+## Step 4 — Test karo
+
+1. Project ko apne usual local server se run karo.
+2. Main website open karke **Enable Sensor** dabao.
+3. Mobile par HTTPS aur motion/location permissions allow karo, agar browser maange.
+4. Sensor ko safely test karo. Phone ko jaan-bujhkar mat giraana; sensor false detection kar sakta hai.
+5. Ambulance page ko manually bhi `ambulance.html` se open karke check kar sakte ho.
+
+**Important:** Abhi ye frontend detection aur incident display ka first version hai. Incident database mein save karna, Spring Boot API aur real ambulance-request workflow abhi connect nahi hua hai. Sensor mobile browser mein background ya page close hone ke baad reliably run nahi karega.
+
+Bhai, pehle ye 3 changes karke batao **sensor prompt aa raha hai ya nahi**. Uske baad Spring Boot ke saath incident save karne wala part jodenge.

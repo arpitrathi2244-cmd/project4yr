@@ -299,6 +299,130 @@
             .map-search { width:100%; margin-left:0; }
             .map-search input { width:100%; }
         }
+    
+
+        /* Mobile layout overrides: preserve desktop styling and behavior. */
+        @media (max-width: 768px) {
+            html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+            .app-shell { display: block !important; width: 100%; min-width: 0 !important; }
+            .topbar {
+                position: relative;
+                display: flex !important;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .brand { flex: 1 1 190px; min-width: 0; }
+            .brand h1 { font-size: 16px; line-height: 1.25; }
+            .brand p { font-size: 11px; }
+            .top-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+            .top-search, .map-header-search {
+                order: 3;
+                display: flex;
+                flex: 1 1 100%;
+                width: 100%;
+                min-width: 0;
+                margin: 0;
+                box-sizing: border-box;
+            }
+            .top-search input, .map-header-search input {
+                width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+            .top-search kbd { display: none; }
+            .sidebar {
+                position: relative !important;
+                inset: auto !important;
+                width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                box-sizing: border-box;
+                padding: 8px 10px;
+            }
+            .sidebar nav {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 8px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 4px 0 8px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+            }
+            .sidebar nav .nav-item {
+                flex: 0 0 auto;
+                width: auto;
+                min-width: max-content;
+                white-space: nowrap;
+                padding: 10px 12px;
+            }
+            .sidebar-sos, .sidebar-caption { display: none !important; }
+            .main {
+                width: 100% !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 12px !important;
+                box-sizing: border-box;
+            }
+            .page-section, .module-page { width: 100%; min-width: 0; box-sizing: border-box; }
+            .summary-grid, .content-grid, .metric-grid, .action-grid,
+            .service-cards, .route-options, .profile-form-grid {
+                grid-template-columns: minmax(0, 1fr) !important;
+            }
+            .content-grid, .left-column, .right-column { min-width: 0; width: 100%; }
+            .panel, .summary-card, .action-card, .profile-card, .report-form {
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            .dashboard-map-stage { height: 380px; min-height: 380px; }
+            #safeRoadLiveMap { height: 100%; min-height: 380px; }
+            .live-map-shell { display: flex !important; flex-direction: column; min-height: 0; }
+            .live-map-card { min-height: 0; width: 100%; box-sizing: border-box; }
+            #roadSafetyMap { height: 380px; min-height: 380px; }
+            .osm-zone-toolbar, .map-top-controls, .dashboard-map-filters {
+                top: 8px;
+                left: 8px;
+                right: 8px;
+                gap: 5px;
+                max-width: calc(100% - 16px);
+            }
+            .osm-zone-btn, .osm-clear-btn, .map-filter, .map-action-btn,
+            .dashboard-map-filter {
+                font-size: 11px;
+                padding: 7px 8px;
+            }
+            .osm-zone-status { right: 8px; bottom: 8px; max-width: calc(100% - 16px); }
+            .map-controls, .dashboard-map-controls { right: 8px; top: 110px; }
+            .map-legend, .dashboard-map-legend {
+                left: 8px; bottom: 8px; gap: 6px; padding: 7px;
+                max-width: calc(100% - 16px); font-size: 10px;
+            }
+            .route-inline-search { flex-wrap: wrap; }
+            .route-inline-search input { min-width: 0; width: 100%; box-sizing: border-box; }
+            .route-inline-search button { flex: 1 1 auto; }
+            .table-wrap { max-width: 100%; overflow-x: auto; }
+            table { min-width: 560px; }
+            input, select, textarea, button { max-width: 100%; }
+            .module-hero h2 { font-size: 24px; line-height: 1.25; }
+        }
+
+        @media (max-width: 420px) {
+            .topbar { gap: 8px; padding: 10px; }
+            .brand h1 { font-size: 14px; }
+            .main { padding: 9px !important; }
+            .dashboard-map-stage { height: 340px; min-height: 340px; }
+            #safeRoadLiveMap { min-height: 340px; }
+            #roadSafetyMap { height: 340px; min-height: 340px; }
+            .osm-zone-toolbar { max-height: 112px; overflow-y: auto; }
+            .dashboard-map-filters { max-height: 100px; overflow-y: auto; }
+        }
+
     </style>
 </head>
 
@@ -469,8 +593,8 @@
                 </button>
 
                 <button class="nav-item" data-section="risk">
-                    ⌁
-                    <span>Risk Prediction</span>
+                    
+                    <span></span>
                     <b>›</b>
                 </button>
 
@@ -491,6 +615,12 @@
                     <span>Safe Route</span>
                     <b>›</b>
                 </button>
+
+                <a class="nav-item" href="sensor/index.html" style="text-decoration:none;">
+                    🛡
+                    <span>Sensor Safety</span>
+                    <b>›</b>
+                </a>
 
                 <button class="nav-item" data-section="emergency">
                     ✚
@@ -631,14 +761,7 @@
                         </div>
                     </article>
 
-                    <article class="summary-card">
-                        <div class="summary-icon red">!</div>
-                        <div>
-                            <small>Current Risk</small>
-                            <strong class="danger-text">HIGH RISK</strong>
-                            <p>Score: <b>82/100</b></p>
-                        </div>
-                    </article>
+                   
 
                     <article class="summary-card">
                         <div class="summary-icon blue">☁</div>
@@ -834,31 +957,18 @@
 
 
                         <!-- Risk trend chart. -->
-                        <article class="panel chart-panel">
+                       
                             <div class="panel-heading">
-                                <h2>Risk Score Trend</h2>
-                                <select>
-                                    <option>Today</option>
-                                    <option>This Week</option>
-                                </select>
+                               
+                                
                             </div>
 
                             <div class="chart">
                                 <div class="y-axis">
-                                    <span>100</span>
-                                    <span>75</span>
-                                    <span>50</span>
-                                    <span>25</span>
-                                    <span>0</span>
+                                   
                                 </div>
 
-                                <svg viewBox="0 0 500 180" preserveAspectRatio="none">
-                                    <defs>
-                                        <linearGradient id="area" x1="0" x2="0" y1="0" y2="1">
-                                            <stop offset="0" stop-opacity=".45" />
-                                            <stop offset="1" stop-opacity="0" />
-                                        </linearGradient>
-                                    </defs>
+                               
 
                                     <path
                                         d="M0 130 C40 115, 55 80, 90 105 S135 130, 165 92 S215 105, 250 94 S290 48, 320 100 S370 135, 400 90 S455 112, 500 70 L500 180 L0 180Z"
@@ -880,20 +990,9 @@
                                     />
                                 </svg>
 
-                                <div class="chart-labels">
-                                    <span>12 AM</span>
-                                    <span>4 AM</span>
-                                    <span>8 AM</span>
-                                    <span>12 PM</span>
-                                    <span>4 PM</span>
-                                    <span>8 PM</span>
-                                    <span>12 AM</span>
-                                </div>
+                              
 
-                                <div class="score-tooltip">
-                                    <b>82</b>
-                                    <small>High Risk</small>
-                                </div>
+                               
                             </div>
                         </article>
 
@@ -1223,6 +1322,43 @@
 
     <!-- SafeRoad live map + GPS + destination routing. -->
     <script src="js/live-map.js"></script>
+
+    // sensor accident detection and alerting
+   <!-- Sensor Safety Popup -->
+<div id="sensorPopup" class="sensor-popup">
+    <div class="sensor-popup-box">
+        <h2>🛡️ Enable Sensor Safety?</h2>
+
+        <p>
+            Enable Sensor Safety to help detect a possible phone drop
+            or sudden impact while sensor monitoring is active.
+        </p>
+
+        <button id="enableSensorFromHome" type="button">
+            Enable Sensors
+        </button>
+
+        <button id="notNowSensor" type="button">
+            Not Now
+        </button>
+
+        <p id="sensorReminderMessage" role="status" aria-live="polite"></p>
+    </div>
+</div>
+<!-- Sensor Monitoring Status -->
+<div id="sensorMonitorBadge" class="sensor-monitor-badge">
+    <span id="sensorMonitorLabel">Sensor Safety: Off</span>
+    <button id="sensorToggleBtn" type="button">Enable</button>
+</div>
+
+<!-- Phone Drop Alert -->
+<div id="sensorDropAlert" class="sensor-drop-alert"
+     role="alert" aria-live="assertive">
+    <strong>⚠ Possible Phone Drop Detected</strong>
+    <p id="sensorDropAlertText">Checking motion pattern...</p>
+    <button id="sensorSilenceBtn" type="button">Silence Alarm</button>
+</div>
+<script src="js/sensor-popup.js" defer></script>
 
 </body>
 
